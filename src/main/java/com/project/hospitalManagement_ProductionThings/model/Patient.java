@@ -32,7 +32,7 @@ public class Patient {
 
     private String name;
 
-    @ToString.Exclude    // if you dont want to print specific field while using toString you can use this
+  //  @ToString.Exclude    // if you dont want to print specific field while using toString you can use this
     private LocalDate birthDate;
 
     @Column(unique = true)    // when we have single column then we make it unique like this
@@ -74,7 +74,7 @@ public class Patient {
     // should also get deleted, but if we delete appointment,  we dont need to delete patient
     // by using orphanRemoval = true, we are simply deleting appointment not patient
     @OneToMany(mappedBy = "patient", cascade = {CascadeType.REMOVE}, orphanRemoval = true)    // inverse side
-    @ToString.Exclude
+  @ToString.Exclude
     private List<Appointment> appointments = new ArrayList<>();
 
     //@Column(updatable = false)   // Yeh column kabhi update nahi hona chaiye future mein bhi kabhi nahi

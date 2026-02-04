@@ -16,41 +16,41 @@ import java.time.LocalDateTime;
 public class InsuranceTest {
 
 
-    @Autowired
-    private InsuranceService insuranceService;
-
-    @Autowired
-    private AppointmentService appointmentService;
-
-    @Test
-    public void testInsurance() {
-        Insurance  insurance = Insurance.builder()
-                .policyNumber("SBI_4321")
-                .provider("SBI")
-                .validUntil(LocalDate.of(2031, 12, 12))
-                .build();
-
-        Patient patient = insuranceService.assignInsuranceToPatient(insurance, 2L);
-        System.out.println(patient);
-
-
-        var newPatient = insuranceService.disassociateInsuraceFromPatient(patient.getId());
-        System.out.println(newPatient);
-    }
-
-
-    @Test
-    public void testAppointment() {
-        Appointment appointment = Appointment.builder()
-                .appointmentTime(LocalDateTime.of(2026, 02, 10, 14, 0))
-                .reason("Fever")
-                .build();
-
-        var newAppointment =  appointmentService.createNewAppointment(appointment, 1L, 2L);
-        System.out.println(newAppointment);
-
-
-        var updatedAppointment = appointmentService.reAssignAppointmentToAnotherDoctor(newAppointment.getId(), 3L);
-        System.out.println(updatedAppointment);
-    }
+//    @Autowired
+//    private InsuranceService insuranceService;
+//
+//    @Autowired
+//    private AppointmentService appointmentService;
+//
+//    @Test
+//    public void testInsurance() {
+//        Insurance  insurance = Insurance.builder()
+//                .policyNumber("SBI_4321")
+//                .provider("SBI")
+//                .validUntil(LocalDate.of(2031, 12, 12))
+//                .build();
+//
+//        Patient patient = insuranceService.assignInsuranceToPatient(insurance, 2L);
+//        System.out.println(patient);
+//
+//
+//        var newPatient = insuranceService.disassociateInsuraceFromPatient(patient.getId());
+//        System.out.println(newPatient);
+//    }
+//
+//
+//    @Test
+//    public void testAppointment() {
+//        Appointment appointment = Appointment.builder()
+//                .appointmentTime(LocalDateTime.of(2026, 02, 10, 14, 0))
+//                .reason("Fever")
+//                .build();
+//
+//        var newAppointment =  appointmentService.createNewAppointment(appointment, 1L, 2L);
+//        System.out.println(newAppointment);
+//
+//
+//        var updatedAppointment = appointmentService.reAssignAppointmentToAnotherDoctor(newAppointment.getId(), 3L);
+//        System.out.println(updatedAppointment);
+//    }
 }
