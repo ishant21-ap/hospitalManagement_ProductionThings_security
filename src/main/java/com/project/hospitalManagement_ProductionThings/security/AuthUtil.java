@@ -39,6 +39,7 @@ public class AuthUtil {
     }
 
 
+    // Extracting User name from Token
     public String getUsernameFromToken(String token) {
         Claims claims =  Jwts.parser()
                 .verifyWith(getSecretKey())

@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
@@ -27,39 +28,53 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final AuthUtil authUtil;
 
+    //IMP
+    // Here we are resolving error which are coming on SPring MVC, but what if we get error in filter
+    // lets say for example we get error in JWTAuthFilter, how can we handle them ?
+    // For that we are using HandleExceptionResolver in JWTAuthFilter, it will Transfer whatever exception caught
+    // there to this GlobalExceptionHandler
+    private final HandlerExceptionResolver handlerExceptionResolver;
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("incoming request: ", request.getRequestURI());
+        try {
+            log.info("incoming request: ", request.getRequestURI());
 
 
-        // from request header we are taking out jwt
-        final String requestTokenHeader = request.getHeader("Authorization");   // this is convention  that header is passed in Auhtorization
-        // value inside authorization is passed with the help of Bearer and then token
+            // from request header we are taking out jwt
+            final String requestTokenHeader = request.getHeader("Authorization");   // this is convention  that header is passed in Auhtorization
+            // value inside authorization is passed with the help of Bearer and then token
 
-        //check
-        if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);    // If check then aage badho using doFilter
-            return;
+            //check
+            if (requestTokenHeader == null || !requestTokenHeader.startsWith("Bearer ")) {
+                filterChain.doFilter(request, response);    // If check then aage badho using doFilter
+                return;
+            }
+
+            // Here token will be like this
+            // Bearer enfiowogfofaofafndsnd
+            // so what we are doing we are converting it in array and then it will be like
+            // ["Bearer", "faeifanfkgnefafae"]
+            // from here we are taking out token using index [1]
+            String token = requestTokenHeader.split("Bearer ")[1];
+
+            // Now taking out username
+            String username = authUtil.getUsernameFromToken(token);
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                User user = userRepository.findByUsername(username).orElseThrow();
+                // now fiters are responsible to store user detials in SecurityContextHolder
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
+            filterChain.doFilter(request, response);
         }
-
-        // Here token will be like this
-        // Bearer enfiowogfofaofafndsnd
-        // so what we are doing we are converting it in array and then it will be like
-        // ["Bearer", "faeifanfkgnefafae"]
-        // from here we are taking out token using index [1]
-        String token = requestTokenHeader.split("Bearer ")[1];
-
-        // Now taking out username
-        String username = authUtil.getUsernameFromToken(token);
-
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByUsername(username).orElseThrow();
-        // now fiters are responsible to store user detials in SecurityContextHolder
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        catch (Exception ex) {
+            // whatever exception we will get it will go to exceptionResolver then it will go to GlobalExceptionHandler
+            handlerExceptionResolver.resolveException(request, response, null, ex);
         }
-        filterChain.doFilter(request, response);
     }
 }
